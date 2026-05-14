@@ -1,0 +1,10 @@
+.gradle/
+.gradle-test/
+build/
+
+*.class
+311_Service_Requests_October_1,_2020_to_Present_20260513.csv
+synthetic_311_routing_descriptions.csv
+service_request_type.csv
+.vscode/
+.DS_Store

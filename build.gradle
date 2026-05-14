@@ -1,0 +1,21 @@
+plugins {
+    id 'application'
+}
+
+group = 'com.serviceticketrouter'
+version = '1.0.0'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+dependencies {
+    implementation 'org.postgresql:postgresql:42.7.4'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.17.2'
+}
+
+application {
+    mainClass = 'com.serviceticketrouter.EmbeddingBackfillApplication'
+}
