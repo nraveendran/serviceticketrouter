@@ -3,36 +3,33 @@ package com.serviceticketrouter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.serviceticketrouter.embeddings.OpenAiEmbeddingClient;
+import com.serviceticketrouter.embeddings.PgVector;
 
 public class EmbeddingBackfillApplication {
     private static final Logger LOGGER = Logger.getLogger(EmbeddingBackfillApplication.class.getName());
-    private static final ObjectMapper JSON = new ObjectMapper();
     private static final int MAX_TOTAL_RECORDS_TO_PROCESS = 20000;
 
     public static void main(String[] args) throws Exception {
         AppConfig config = AppConfig.load();
         config.validate();
 
-        EmbeddingClient embeddingClient = new EmbeddingClient(config);
+        OpenAiEmbeddingClient embeddingClient = new OpenAiEmbeddingClient(
+                config.openAiApiKey(),
+                config.openAiEmbeddingModel(),
+                java.net.http.HttpClient.newHttpClient()
+        );
 
         int totalUpdated = 0;
         LOGGER.info(() -> "Starting embedding backfill. batchSize=" + config.batchSize()
@@ -123,7 +120,7 @@ public class EmbeddingBackfillApplication {
             connection.setAutoCommit(false);
 
             for (int i = 0; i < descriptions.size(); i++) {
-                statement.setString(1, toPgVectorLiteral(embeddings.get(i)));
+                statement.setString(1, PgVector.toLiteral(embeddings.get(i)));
                 statement.setString(2, descriptions.get(i).syntheticId());
                 statement.addBatch();
             }
@@ -132,12 +129,6 @@ public class EmbeddingBackfillApplication {
             connection.commit();
             LOGGER.info(() -> "Committed " + descriptions.size() + " embedding updates.");
         }
-    }
-
-    private static String toPgVectorLiteral(List<BigDecimal> embedding) {
-        return embedding.stream()
-                .map(BigDecimal::toPlainString)
-                .collect(Collectors.joining(",", "[", "]"));
     }
 
     private record SyntheticDescription(String syntheticId, String citizenDescription) {
@@ -180,60 +171,5 @@ public class EmbeddingBackfillApplication {
                 throw new IllegalStateException("embedding.batch.size must be between 1 and 2048.");
             }
         }
-    }
-
-    private static class EmbeddingClient {
-        private final AppConfig config;
-        private final HttpClient httpClient;
-
-        private EmbeddingClient(AppConfig config) {
-            this.config = config;
-            this.httpClient = HttpClient.newBuilder()
-                    .connectTimeout(Duration.ofSeconds(30))
-                    .build();
-        }
-
-        private List<List<BigDecimal>> createEmbeddings(List<String> inputs) throws IOException, InterruptedException {
-            EmbeddingRequest requestBody = new EmbeddingRequest(config.openAiEmbeddingModel(), inputs);
-            String requestJson = JSON.writeValueAsString(requestBody);
-            // LOGGER.info(() -> "OpenAI embeddings request body: " + requestJson);
-
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create("https://api.openai.com/v1/embeddings"))
-                    .timeout(Duration.ofMinutes(2))
-                    .header("Authorization", "Bearer " + config.openAiApiKey())
-                    .header("Content-Type", "application/json")
-                    .POST(HttpRequest.BodyPublishers.ofString(requestJson))
-                    .build();
-
-            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-            // LOGGER.info(() -> "OpenAI embeddings response status: " + response.statusCode());
-            // LOGGER.info(() -> "OpenAI embeddings response body: " + response.body());
-
-            if (response.statusCode() < 200 || response.statusCode() >= 300) {
-                throw new IOException("OpenAI embeddings request failed with HTTP "
-                        + response.statusCode() + ": " + response.body());
-            }
-
-            EmbeddingResponse embeddingResponse = JSON.readValue(response.body(), EmbeddingResponse.class);
-            return embeddingResponse.data().stream()
-                    .sorted((left, right) -> Integer.compare(left.index(), right.index()))
-                    .map(EmbeddingData::embedding)
-                    .toList();
-        }
-    }
-
-    private record EmbeddingRequest(String model, List<String> input) {
-    }
-
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    private record EmbeddingResponse(List<EmbeddingData> data) {
-    }
-
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    private record EmbeddingData(
-            int index,
-            @JsonProperty("embedding") List<BigDecimal> embedding
-    ) {
     }
 }

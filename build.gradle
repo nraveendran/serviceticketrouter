@@ -12,10 +12,11 @@ java {
 }
 
 dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-web:3.3.5'
     implementation 'org.postgresql:postgresql:42.7.4'
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.17.2'
 }
 
 application {
-    mainClass = 'com.serviceticketrouter.EmbeddingBackfillApplication'
+    mainClass = 'com.serviceticketrouter.ServiceTicketRouterApplication'
 }
