@@ -51,7 +51,7 @@ public class EmbeddingBackfillApplication {
 
             List<List<BigDecimal>> embeddings = embeddingClient.createEmbeddings(
                     descriptions.stream()
-                            .map(SyntheticDescription::citizenDescription)
+                            .map(SyntheticDescription::generatedDescription)
                             .collect(Collectors.toList())
             );
 
@@ -68,11 +68,11 @@ public class EmbeddingBackfillApplication {
 
     private static List<SyntheticDescription> fetchRowsWithoutEmbeddings(AppConfig config, int limit) throws SQLException {
         String sql = """
-                SELECT synthetic_id, citizen_description
-                FROM synthetic_routing_examples
+                SELECT service_request_number, generated_description
+                FROM synthetic_service_request_descriptions
                 WHERE embedding IS NULL
-                  AND citizen_description IS NOT NULL
-                ORDER BY synthetic_id
+                  AND generated_description IS NOT NULL
+                ORDER BY service_request_number
                 LIMIT ?
                 """;
 
@@ -87,8 +87,8 @@ public class EmbeddingBackfillApplication {
             try (ResultSet resultSet = statement.executeQuery()) {
                 while (resultSet.next()) {
                     rows.add(new SyntheticDescription(
-                            resultSet.getString("synthetic_id"),
-                            resultSet.getString("citizen_description")
+                            resultSet.getString("service_request_number"),
+                            resultSet.getString("generated_description")
                     ));
                 }
             }
@@ -107,9 +107,9 @@ public class EmbeddingBackfillApplication {
         }
 
         String sql = """
-                UPDATE synthetic_routing_examples
+                UPDATE synthetic_service_request_descriptions
                 SET embedding = ?::vector
-                WHERE synthetic_id = ?
+                WHERE service_request_number = ?
                 """;
 
         try (Connection connection = DriverManager.getConnection(
@@ -121,7 +121,7 @@ public class EmbeddingBackfillApplication {
 
             for (int i = 0; i < descriptions.size(); i++) {
                 statement.setString(1, PgVector.toLiteral(embeddings.get(i)));
-                statement.setString(2, descriptions.get(i).syntheticId());
+                statement.setString(2, descriptions.get(i).serviceRequestNumber());
                 statement.addBatch();
             }
 
@@ -131,7 +131,7 @@ public class EmbeddingBackfillApplication {
         }
     }
 
-    private record SyntheticDescription(String syntheticId, String citizenDescription) {
+    private record SyntheticDescription(String serviceRequestNumber, String generatedDescription) {
     }
 
     private record AppConfig(

@@ -3,6 +3,7 @@ CREATE EXTENSION vector;
 
 DROP TABLE IF EXISTS raw_311_service_requests;
 DROP TABLE IF EXISTS service_requests;
+DROP TABLE IF EXISTS synthetic_routing_examples;
 
 CREATE TABLE raw_311_service_requests (
     service_request_number TEXT,
@@ -84,17 +85,7 @@ CREATE TABLE service_requests (
 );
 
 
-CREATE TABLE synthetic_routing_examples (
-    synthetic_id TEXT PRIMARY KEY,
-    source_row_number INTEGER,
-    citizen_description TEXT,
-    service_request_type TEXT,
-    department TEXT,
-    priority TEXT,
-    request_count INTEGER,
-    allocation_count_for_source_row INTEGER,
-    difficulty TEXT
-);
+
 
 CREATE INDEX idx_sre_service_type
 ON synthetic_routing_examples(service_request_type);
@@ -105,8 +96,7 @@ ON synthetic_routing_examples(department);
 CREATE INDEX idx_sre_difficulty
 ON synthetic_routing_examples(difficulty);
 
-ALTER TABLE synthetic_routing_examples
-ADD COLUMN embedding vector(1536);
+
 
 CREATE TABLE service_type_metadata (
     id BIGSERIAL PRIMARY KEY,
@@ -127,3 +117,6 @@ CREATE TABLE synthetic_service_request_descriptions (
     difficulty TEXT,
  created_at TIMESTAMP DEFAULT now()
 );
+
+ALTER TABLE synthetic_service_request_descriptions
+ADD COLUMN embedding vector(1536);

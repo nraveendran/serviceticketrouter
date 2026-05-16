@@ -4,11 +4,6 @@ DELIMITER ','
 CSV HEADER;
 
 
-copy synthetic_routing_examples
-FROM '/Users/nidhishnair/workspace/serviceticketrouter/synthetic_311_routing_descriptions.csv'
-DELIMITER ','
-CSV HEADER;
-
 
 --sanitize raw data ADD
 INSERT INTO service_requests (

@@ -83,7 +83,7 @@ public class RoutePredictionService {
                         department,
                         priority,
                         1 - (embedding <=> CAST(? AS vector)) AS similarity
-                    FROM synthetic_routing_examples
+                    FROM synthetic_service_request_descriptions
                     WHERE embedding IS NOT NULL
                     ORDER BY embedding <=> CAST(? AS vector)
                     LIMIT ?
@@ -103,7 +103,6 @@ public class RoutePredictionService {
         try (Connection connection = DriverManager.getConnection(databaseUrl, databaseUsername, databasePassword);
              PreparedStatement statement = connection.prepareStatement(sql)) {
             
-            LOGGER.info(() -> "Embedding literal =" + embeddingLiteral);
             statement.setString(1, embeddingLiteral);
             statement.setString(2, embeddingLiteral);
             statement.setInt(3, NEAREST_LIMIT);
@@ -113,7 +112,7 @@ public class RoutePredictionService {
                 if (!resultSet.next()) {
                     throw new ResponseStatusException(
                             HttpStatus.NOT_FOUND,
-                            "No synthetic routing examples with embeddings were found."
+                            "No synthetic service request descriptions with embeddings were found."
                     );
                 }
 
