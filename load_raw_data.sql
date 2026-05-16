@@ -4,6 +4,12 @@ DELIMITER ','
 CSV HEADER;
 
 
+copy synthetic_routing_examples
+FROM '/Users/nidhishnair/workspace/serviceticketrouter/synthetic_311_routing_descriptions.csv'
+DELIMITER ','
+CSV HEADER;
+
+
 --sanitize raw data ADD
 INSERT INTO service_requests (
     unique_key,
@@ -58,3 +64,13 @@ SELECT
     ) / 3600.0
 
 FROM raw_311_service_requests;
+
+DELETE FROM service_requests sr1
+USING service_requests sr2
+WHERE sr1.service_request_number = sr2.service_request_number
+  AND sr1.id > sr2.id;
+
+
+ALTER TABLE service_requests
+ADD CONSTRAINT uq_service_request_number
+UNIQUE (service_request_number);

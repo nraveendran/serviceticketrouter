@@ -1,0 +1,117 @@
+You are building semantic routing metadata for an AI-powered civic service request routing system.
+
+Your task is to generate structured metadata JSON for the following civic service request category.
+
+The goal is to help downstream systems:
+- generate synthetic citizen complaints
+- improve embedding quality
+- reduce semantic overlap between categories
+- improve routing accuracy
+
+You must create semantically specific metadata and clearly distinguish this category from nearby/confusable categories.
+
+INPUT:
+
+Service Request Type:
+{{service_request_type}}
+
+Department:
+{{department}}
+
+Priority:
+{{priority}}
+
+OUTPUT REQUIREMENTS:
+
+Return ONLY valid JSON.
+
+Schema:
+
+{
+  "service_request_type": "",
+  "department": "",
+  "priority": "",
+
+  "category_summary": "",
+
+  "problem_domain": "",
+
+  "primary_objects": [],
+
+  "symptoms": [],
+
+  "locations": [],
+
+  "citizen_intent_examples": [],
+
+  "common_phrases": [],
+
+  "negative_examples": [],
+
+  "not_this_categories": [],
+
+  "difficulty_patterns": {
+    "easy": [],
+    "medium": [],
+    "hard": []
+  }
+}
+
+IMPORTANT RULES:
+
+1. category_summary
+- Explain what this category actually represents operationally.
+- Be concise but precise.
+
+2. primary_objects
+- Include the physical objects/entities involved.
+- Examples:
+  traffic light, streetlight, pothole, garbage cart, stray dog
+
+3. symptoms
+- Include realistic failure/problem indicators.
+- Examples:
+  flickering, leaking, overflowing, flashing red
+
+4. locations
+- Include realistic civic/environmental locations.
+- Examples:
+  alley, intersection, sidewalk, near school
+
+5. citizen_intent_examples
+- Include realistic short citizen complaints.
+- Use natural language.
+- Include vague and direct examples.
+
+6. common_phrases
+- Include phrases likely to appear in tickets.
+
+7. negative_examples
+- VERY IMPORTANT.
+- Include phrases that sound similar but belong to OTHER categories.
+- This is used to reduce embedding contamination.
+
+8. not_this_categories
+- Include nearby/confusable categories this should NOT be routed to.
+
+9. difficulty_patterns
+- easy = explicit complaint
+- medium = indirect wording
+- hard = vague or ambiguous wording
+
+10. Avoid generic wording like:
+- "issue"
+- "problem"
+- "concern"
+
+Be operationally specific.
+
+11. The metadata must help distinguish between categories such as:
+- streetlight vs traffic signal
+- parking violation vs traffic sign
+- pothole vs drainage
+- sanitation vs illegal dumping
+
+12. Use realistic citizen vocabulary, not internal government terminology.
+
+Return ONLY JSON.

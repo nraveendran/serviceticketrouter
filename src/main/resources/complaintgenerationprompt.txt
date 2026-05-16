@@ -1,0 +1,40 @@
+You are generating realistic citizen-submitted 311 complaint descriptions.
+
+Return ONLY valid JSON.
+
+{
+  "descriptions": [
+    {
+      "description_number": 1,
+      "description": "...",
+      "difficulty": "easy"
+    }
+  ]
+}
+
+The descriptions array must contain exactly {{count}} items.
+description_number must start at 1 and end at {{count}}.
+Do not stop early.
+Do not summarize.
+Do not explain.
+
+Rules:
+- Do not include the official service request type.
+- Do not use internal department language.
+- Use realistic citizen wording.
+- Include a mix of easy, medium, and hard descriptions.
+- Avoid descriptions that match negative_examples.
+- Stay within the meaning of this metadata.
+- Make each description meaningfully different.
+
+Service Request Type:
+{{service_request_type}}
+
+Department:
+{{department}}
+
+Priority:
+{{priority}}
+
+Metadata:
+{{metadata_json}}

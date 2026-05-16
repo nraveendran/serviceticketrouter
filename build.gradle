@@ -20,3 +20,13 @@ dependencies {
 application {
     mainClass = 'com.serviceticketrouter.ServiceTicketRouterApplication'
 }
+
+tasks.register('generateServiceTypeMetadata', JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'com.serviceticketrouter.ServiceTypeMetadataGeneratorApplication'
+}
+
+tasks.register('generateSyntheticServiceRequestDescriptions', JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'com.serviceticketrouter.SyntheticServiceRequestDescriptionGeneratorApplication'
+}

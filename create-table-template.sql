@@ -107,3 +107,23 @@ ON synthetic_routing_examples(difficulty);
 
 ALTER TABLE synthetic_routing_examples
 ADD COLUMN embedding vector(1536);
+
+CREATE TABLE service_type_metadata (
+    id BIGSERIAL PRIMARY KEY,
+    service_request_type TEXT NOT NULL,
+    department TEXT,
+    priority TEXT,
+    metadata_json JSONB NOT NULL,
+    created_at TIMESTAMP DEFAULT now(),
+    reviewed BOOLEAN DEFAULT false
+);
+
+CREATE TABLE synthetic_service_request_descriptions (
+    service_request_number TEXT PRIMARY KEY,
+	 service_request_type TEXT NOT NULL,
+    department TEXT NOT NULL,
+    priority TEXT NOT NULL,
+	 generated_description TEXT NOT NULL,
+    difficulty TEXT,
+ created_at TIMESTAMP DEFAULT now()
+);
