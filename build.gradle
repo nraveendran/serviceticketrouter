@@ -30,3 +30,8 @@ tasks.register('generateSyntheticServiceRequestDescriptions', JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
     mainClass = 'com.serviceticketrouter.SyntheticServiceRequestDescriptionGeneratorApplication'
 }
+
+tasks.register('evaluateRouting', JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'com.serviceticketrouter.RoutingEvaluationApplication'
+}

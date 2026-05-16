@@ -120,3 +120,37 @@ CREATE TABLE synthetic_service_request_descriptions (
 
 ALTER TABLE synthetic_service_request_descriptions
 ADD COLUMN embedding vector(1536);
+
+ALTER TABLE synthetic_service_request_descriptions
+ADD COLUMN dataset_split TEXT;
+
+UPDATE synthetic_service_request_descriptions
+SET dataset_split =
+    CASE
+        WHEN random() < 0.8 THEN 'train'
+        ELSE 'test'
+    END;
+
+
+CREATE TABLE routing_evaluation_results (
+    id BIGSERIAL PRIMARY KEY,
+    service_request_number TEXT,
+    input_description TEXT,
+    actual_service_request_type TEXT,
+    actual_department TEXT,
+    actual_priority TEXT,
+    predicted_service_request_type TEXT,
+    predicted_department TEXT,
+    predicted_priority TEXT,
+    top1_correct BOOLEAN,
+    top3_correct BOOLEAN,
+    confidence DOUBLE PRECISION,
+    score_gap DOUBLE PRECISION,
+    evaluated_at TIMESTAMP DEFAULT now()
+);
+
+ALTER TABLE routing_evaluation_results
+ADD COLUMN department_correct BOOLEAN,
+ADD COLUMN service_type_correct BOOLEAN,
+ADD COLUMN priority_correct BOOLEAN,
+ADD COLUMN route_correct BOOLEAN;
