@@ -154,3 +154,38 @@ ADD COLUMN department_correct BOOLEAN,
 ADD COLUMN service_type_correct BOOLEAN,
 ADD COLUMN priority_correct BOOLEAN,
 ADD COLUMN route_correct BOOLEAN;
+
+CREATE TABLE system_311_queue (
+    queue_id BIGSERIAL PRIMARY KEY,
+    description TEXT NOT NULL,
+    address TEXT,
+    latitude DOUBLE PRECISION,
+    longitude DOUBLE PRECISION,
+    predicted_department TEXT,
+    predicted_service_request_type TEXT,
+    predicted_priority TEXT,
+    routing_confidence DOUBLE PRECISION,
+    status TEXT NOT NULL CHECK (
+        status IN (
+            'Received',
+            'NeedsReview',
+            'ReadyForDispatch',
+            'NeedsDispatch',
+            'Dispatched',
+            'DispatchFailed',
+            'Closed'
+        )
+    ),
+    status_reason TEXT,
+    service_request_number TEXT,
+    department_ticket_id TEXT,
+    created_by TEXT DEFAULT 'AI_AGENT',
+    created_at TIMESTAMP NOT NULL DEFAULT now(),
+    updated_at TIMESTAMP NOT NULL DEFAULT now(),
+    notes TEXT
+);
+
+CREATE INDEX idx_system_311_queue_status ON system_311_queue(status);
+CREATE INDEX idx_system_311_queue_created_at ON system_311_queue(created_at);
+CREATE INDEX idx_system_311_queue_predicted_department ON system_311_queue(predicted_department);
+CREATE INDEX idx_system_311_queue_service_request_number ON system_311_queue(service_request_number);

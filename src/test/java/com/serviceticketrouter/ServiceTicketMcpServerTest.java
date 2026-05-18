@@ -19,12 +19,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 class ServiceTicketMcpServerTest {
 
     @Test
-    void shouldExposeRoutingToolOverMcp() {
+    void shouldExposeServiceTicketToolsOverMcp() {
         try (McpSyncClient client = createMcpClient("http://localhost:8080")) {
             var tools = client.listTools();
 
             assertThat(tools.tools())
-                    .anyMatch(tool -> tool.name().equals("predictRoute"));
+                    .anyMatch(tool -> tool.name().equals("predictRoute"))
+                    .anyMatch(tool -> tool.name().equals("create311QueueItem"));
         }
     }
 
