@@ -8,3 +8,4 @@ synthetic_311_routing_descriptions.csv
 service_request_type.csv
 .vscode/
 .DS_Store
+bin/
